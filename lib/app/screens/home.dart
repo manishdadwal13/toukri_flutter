@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:toukri/app/apicall/baseUtil.dart';
+import 'package:toukri/app/apicall/network_util.dart';
 import 'package:toukri/app/screens/widgets/cart_detail_window.dart';
 import 'package:toukri/models/cart.dart';
 
@@ -39,6 +41,8 @@ class _HomeState extends State<Home> {
       _carts = Cart.getData();
     });
 
+    getCartList();
+   // getcartDetail();
     _configureMarkers();
   }
 
@@ -497,4 +501,35 @@ class _HomeState extends State<Home> {
       });
     }
   }
+
+  void getCartList() {
+
+    NetworkUtil networkUtil= new NetworkUtil();
+
+
+    String url= baseUrl+gtCartList+"?lat=30.557087&lng=76.939462&radius=1000";
+
+    networkUtil.get(url,headers: {
+"x-api-key":"63oVaqpOIfjsnbgSQmHNCylvHfD7GB0ag9m3hApeibul9Lgd6d"
+    }).then((dynamic onValue){
+
+    });
+
+
+  }
+}
+
+void getcartDetail(){
+
+  NetworkUtil networkUtil= new NetworkUtil();
+
+
+  String url= baseUrl+cartDetail+"?id=7";
+
+  networkUtil.get(url,headers: {
+    "x-api-key":"63oVaqpOIfjsnbgSQmHNCylvHfD7GB0ag9m3hApeibul9Lgd6d"
+  }).then((dynamic onValue){
+
+  });
+
 }

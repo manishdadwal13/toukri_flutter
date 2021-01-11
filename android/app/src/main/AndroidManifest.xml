@@ -10,7 +10,7 @@
         android:label="toukri"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="AIzaSyCUMQf_NCFZekSyEngARJlKH9kNfSdxLgg"/>
+               android:value="AIzaSyB88ZMscgJVyHWQLKBoOLOIy7xexjBHoHU"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

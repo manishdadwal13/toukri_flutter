@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:toukri/app/screens/login.dart';
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
         DeviceOrientation.portraitUp,
         DeviceOrientation.portraitDown,
       ]);
+      Firebase.initializeApp();
     return MaterialApp(
       title: 'Toukri',
       debugShowCheckedModeBanner: false,

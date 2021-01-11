@@ -1,4 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:toukri/app/firebase/sign_in.dart';
 import 'package:toukri/app/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toukri/app/screens/widgets/tutorial.dart';
@@ -11,6 +15,9 @@ class _LoginState extends State<Login> {
   @override
 
   bool sendToTutorial = false;
+
+  //final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
 
   void initState() {
     super.initState();
@@ -89,8 +96,16 @@ class _LoginState extends State<Login> {
                 ),
                 textColor: Colors.black,
                 color: Colors.white,
-                onPressed: () => Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => sendToTutorial ? Tutorial() : Home())),
+                onPressed: () => {
+                  signInWithGoogle().then((dynamic value){
+
+
+                    debugPrint("dfdfdfdfdfdffffffffffffffffffff");
+
+                  })
+
+
+                },
                 elevation: 2.0,
                 child: Container(
                   width: 200,
