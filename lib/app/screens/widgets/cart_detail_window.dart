@@ -1,41 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:share/share.dart';
+import 'package:toukri/app/model/cart_detail_response.dart';
+import 'package:toukri/app/model/cartdata.dart';
 import 'package:toukri/app/screens/widgets/SwipeGesture.dart';
 import 'package:toukri/models/cart.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class CartDetailWindow extends StatelessWidget {
-  final Cart cart;
+class CartDetailWindow extends StatefulWidget {
+  final CartData cart;
   final Function() onSwipeDown;
+
   CartDetailWindow({this.cart, this.onSwipeDown});
+
+
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return _CartDetailWindowState();
+  }
+}
+
+class _CartDetailWindowState extends State<CartDetailWindow>{
+
+
+
+
 
   Widget _column(String text, String icon, double height) {
     return Column(
       children: [
-        Container(
+        InkWell(
+            onTap: ()=>{
+              if(text=="Share"){
+                Share.share('check out my website https://example.com'),
+
+
+              }
+
+
+            },
+            child: Container(
           width: height * 0.03,
           height: height * 0.03,
           child: Image.asset(icon),
-        ),
+        )   ),
         SizedBox(height: 6),
         Text(text)
       ],
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
+    // TODO: implement build
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
     return SwipeDetector(
       onSwipeDown: () {
-        if (onSwipeDown != null) {
-          onSwipeDown();
+        if (widget.onSwipeDown != null) {
+          widget.onSwipeDown();
         }
       },
       child: AnimatedContainer(
-          transform:
-              Matrix4.translationValues(0, cart.isShow ? 0 : height * 0.1, 0),
+          transform: Matrix4.translationValues(0, true ? 0 : height * 0.1, 0),
           duration: Duration(milliseconds: 1000),
           color: Colors.white,
           height: height * 0.3,
@@ -57,34 +88,38 @@ class CartDetailWindow extends StatelessWidget {
                                 image: NetworkImage(
                                     'https://preview.keenthemes.com/metronic-v4/theme/assets/pages/media/profile/profile_user.jpg')),
                             borderRadius:
-                                BorderRadius.all(Radius.circular(6.0)),
+                            BorderRadius.all(Radius.circular(6.0)),
                           ),
                         ),
                         Padding(
                             padding: EdgeInsets.only(left: 12, top: 12),
                             child: Text(
-                              "${cart.userName}",
+                              "${widget.cart.cartName}",
                               style: TextStyle(fontSize: 18),
                             )),
                         Spacer(),
                         FlatButton(
                             height: height * 0.05,
                             minWidth: height * 0.05,
-                            onPressed: () {},
+                            onPressed: () {
+
+                              _launchURL();
+
+                            },
                             child: Container(
                                 width: height * 0.05,
                                 height: height * 0.05,
                                 decoration: BoxDecoration(
                                     color: Colors.green,
                                     borderRadius:
-                                        BorderRadius.all(Radius.circular(22))),
+                                    BorderRadius.all(Radius.circular(22))),
                                 child: Icon(
                                   Icons.call,
                                   color: Colors.white,
                                 ))),
                         IconButton(
                             icon: Icon(Icons.cancel),
-                            onPressed: () => onSwipeDown())
+                            onPressed: () => widget.onSwipeDown())
                       ],
                     ),
                     SizedBox(height: 12),
@@ -97,16 +132,29 @@ class CartDetailWindow extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 12),
-                    Container(
-                        alignment: Alignment.center, child: CartVegetables()),
+                   Container(
+                        alignment: Alignment.center, child: widget.cart.cartDetailData!=null? CartVegetables(cartDetailData: widget.cart.cartDetailData,):Container()),
                   ],
                 )),
           ])),
     );
   }
+  _launchURL() async {
+    const url = 'tel:';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 }
 
 class CartVegetables extends StatefulWidget {
+
+  final CartDetailData cartDetailData;
+
+  const CartVegetables({Key key, this.cartDetailData}) : super(key: key);
+
   @override
   _CartVegetablesState createState() => _CartVegetablesState();
 }
@@ -141,10 +189,18 @@ class _CartVegetablesState extends State<CartVegetables> {
     "spinach",
     "tomato"
   ];
-
+  List<CartItems> cartItems= List();
   @override
   void initState() {
     super.initState();
+
+
+    setState(() {
+      cartItems= widget.cartDetailData.cartItems;
+    });
+
+
+
   }
 
   void tabbedBack() {
@@ -164,19 +220,21 @@ class _CartVegetablesState extends State<CartVegetables> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
-    return Container(
+    return Expanded(
+        child: Container(
       width: MediaQuery.of(context).size.width,
-      child: Stack(children: [
+          height: height * 0.085,
+      child:cartItems.length!=0? Stack(children: [
         Container(
             margin: EdgeInsets.only(right: 20, left: 20),
             width: MediaQuery.of(context).size.width,
-            height: height * 0.10,
+
             color: Colors.grey[100],
             child: ListView.builder(
               physics: BouncingScrollPhysics(),
               controller: scrollController,
               scrollDirection: Axis.horizontal,
-              itemCount: _vegetables.length,
+              itemCount: cartItems.length,
               itemBuilder: (BuildContext context, int index) {
                 return Container(
                     width: 44,
@@ -188,8 +246,7 @@ class _CartVegetablesState extends State<CartVegetables> {
                           onTap: () {
                             print("Selected ${_vegetables[index]}");
                           },
-                          child: SvgPicture.asset(
-                              "assets/svg/${_vegetables[index]}.svg")),
+                          child: SvgPicture.network(cartItems[index].iconUrl)),
                     ));
               },
             )),
@@ -263,7 +320,8 @@ class _CartVegetablesState extends State<CartVegetables> {
                         color: Colors.grey[500]))),
           ),
         )
-      ]),
-    );
+      ]):
+      Container(),
+    ));
   }
 }

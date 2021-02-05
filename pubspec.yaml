@@ -31,6 +31,16 @@ dependencies:
   google_maps_flutter: ^1.0.3
   flutter_svg: ^0.19.1
   shared_preferences: ^0.5.12+4
+  google_sign_in: ^4.5.6
+  firebase_core: ^0.5.3
+  firebase_auth: ^0.18.4+1
+  http: ^0.12.2
+  progress_dialog: ^1.2.4
+  geolocator: ^6.1.14
+  url_launcher: ^5.7.10
+  share: ^0.6.5+4
+#location: ^3.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
