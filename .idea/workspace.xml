@@ -25,8 +25,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/app/screens/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/screens/home.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/app/screens/widgets/cart_detail_window.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/screens/widgets/cart_detail_window.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/google-services.json" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/google-services.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app/screens/login.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app/screens/login.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -54,14 +56,14 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="dart.analysis.tool.window.visible" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../tahir/dropgrocer-android-master" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/android/app" />
     <property name="settings.editor.selected.configurable" value="flutter.settings" />
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/lib/app/screens" />
       <recent name="$PROJECT_DIR$/android/app" />
+      <recent name="$PROJECT_DIR$/lib/app/screens" />
     </key>
   </component>
   <component name="RunManager">
@@ -104,22 +106,22 @@
       <screen x="72" y="27" width="1294" height="741" />
     </state>
     <state x="502" y="157" width="472" height="491" key="FileChooserDialogImpl/72.27.1294.741@72.27.1294.741" timestamp="1611918353336" />
-    <state width="1248" height="2" key="GridCell.Tab.0.bottom" timestamp="1614424986773">
+    <state width="1248" height="199" key="GridCell.Tab.0.bottom" timestamp="1614429512835">
       <screen x="72" y="27" width="1294" height="741" />
     </state>
-    <state width="1248" height="2" key="GridCell.Tab.0.bottom/72.27.1294.741@72.27.1294.741" timestamp="1614424986773" />
-    <state width="1248" height="2" key="GridCell.Tab.0.center" timestamp="1614424986772">
+    <state width="1248" height="199" key="GridCell.Tab.0.bottom/72.27.1294.741@72.27.1294.741" timestamp="1614429512835" />
+    <state width="1248" height="199" key="GridCell.Tab.0.center" timestamp="1614429512835">
       <screen x="72" y="27" width="1294" height="741" />
     </state>
-    <state width="1248" height="2" key="GridCell.Tab.0.center/72.27.1294.741@72.27.1294.741" timestamp="1614424986772" />
-    <state width="1248" height="2" key="GridCell.Tab.0.left" timestamp="1614424986772">
+    <state width="1248" height="199" key="GridCell.Tab.0.center/72.27.1294.741@72.27.1294.741" timestamp="1614429512835" />
+    <state width="1248" height="199" key="GridCell.Tab.0.left" timestamp="1614429512834">
       <screen x="72" y="27" width="1294" height="741" />
     </state>
-    <state width="1248" height="2" key="GridCell.Tab.0.left/72.27.1294.741@72.27.1294.741" timestamp="1614424986772" />
-    <state width="1248" height="2" key="GridCell.Tab.0.right" timestamp="1614424986773">
+    <state width="1248" height="199" key="GridCell.Tab.0.left/72.27.1294.741@72.27.1294.741" timestamp="1614429512834" />
+    <state width="1248" height="199" key="GridCell.Tab.0.right" timestamp="1614429512835">
       <screen x="72" y="27" width="1294" height="741" />
     </state>
-    <state width="1248" height="2" key="GridCell.Tab.0.right/72.27.1294.741@72.27.1294.741" timestamp="1614424986773" />
+    <state width="1248" height="199" key="GridCell.Tab.0.right/72.27.1294.741@72.27.1294.741" timestamp="1614429512835" />
     <state x="208" y="31" width="1022" height="737" key="SettingsEditor" timestamp="1610819708119">
       <screen x="72" y="27" width="1294" height="741" />
     </state>
@@ -140,11 +142,6 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/app/screens/login.dart</url>
-          <line>155</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="Dart">
           <url>file://$PROJECT_DIR$/lib/app/apic/network_utl.dart</url>
           <line>29</line>

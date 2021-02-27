@@ -15,13 +15,13 @@ class _LoginState extends State<Login> {
   @override
   bool sendToTutorial = false;
 
- /* final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = GoogleSignIn();*/
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
 
   bool authSignedIn;
   String uid;
   String userEmail;
-
+  FirebaseUser _user;
   void initState() {
     super.initState();
     setupFirstTime();
@@ -94,13 +94,16 @@ class _LoginState extends State<Login> {
                   textColor: Colors.black,
                   color: Colors.white,
                   onPressed: () => {
-                 /*   Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                sendToTutorial ? Tutorial() : Home())),*/
 
-                // signInWithGoogle()
+                    signInWithGoogle().whenComplete(() {
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                               Home()));
+
+                    })
 
                   },
                   elevation: 2.0,
@@ -152,46 +155,43 @@ class _LoginState extends State<Login> {
       ),
     );
   }
-/*
-  Future<String> signInWithGoogle() async {
-    // Initialize Firebase
 
 
-    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-    final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
 
-    final AuthCredential credential = GoogleAuthProvider.credential(
+  Future<FirebaseUser> signInWithGoogle() async {
+
+googleSignIn.signOut();
+    GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+
+    GoogleSignInAuthentication googleSignInAuthentication =
+
+    await googleSignInAccount.authentication;
+
+    AuthCredential credential = GoogleAuthProvider.getCredential(
+
       accessToken: googleSignInAuthentication.accessToken,
+
       idToken: googleSignInAuthentication.idToken,
+
     );
 
-    final UserCredential userCredential = await _auth.signInWithCredential(credential);
-    final User user = userCredential.user;
+    AuthResult authResult = await _auth.signInWithCredential(credential);
 
-    if (user != null) {
-      // Checking if email and name is null
-      assert(user.uid != null);
-      assert(user.email != null);
-      assert(user.displayName != null);
-      assert(user.photoURL != null);
+    _user = authResult.user;
 
-      uid = user.uid;
-    //  name = user.displayName;
-      userEmail = user.email;
-      //imageUrl = user.photoURL;
-debugPrint("------------------$userEmail");
-      assert(!user.isAnonymous);
-      assert(await user.getIdToken() != null);
+    assert(!_user.isAnonymous);
 
-      final User currentUser = _auth.currentUser;
-      assert(user.uid == currentUser.uid);
+    assert(await _user.getIdToken() != null);
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setBool('auth', true);
+   // FirebaseUser currentUser = await authResult.currentUser();
 
-      return 'Google sign in successful, User UID: ${user.uid}';
-    }
+   // assert(_user.uid == currentUser.uid);
 
-    return null;
-  }*/
+
+
+    print("User Name: ${_user.displayName}");
+    print("User Email ${_user.email}");
+
+  }
+
 }
