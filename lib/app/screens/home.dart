@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:toukri/app/apic/base_util.dart';
 import 'package:toukri/app/apic/network_utl.dart';
 import 'package:toukri/app/model/cart_detail_response.dart';
 import 'package:toukri/app/model/cartdata.dart';
 import 'package:toukri/app/model/cartresponse.dart';
-
+import 'package:socket_io_client/socket_io_client.dart';
 import 'package:toukri/app/screens/widgets/cart_detail_window.dart';
 import 'package:toukri/models/cart.dart';
 
@@ -34,17 +35,31 @@ class _HomeState extends State<Home> {
   bool isShowCartWindow = false;
 
   CartDetailData cartDetailData;
+
   //List<CartDetailData> cartDetailData = List();
   List<CartRoutes> routeList = List();
 
-  static CameraPosition _kGooglePlex;
-  static CameraPosition _kGoogleD=CameraPosition(
+  static CameraPosition _kGooglePlex=CameraPosition(
+    target: LatLng(20.5937, 78.9629),
+    zoom: 16,
+  );
+  static CameraPosition _kGoogleD = CameraPosition(
     target: LatLng(20.5937, 78.9629),
     zoom: 16,
   );
 
   double lat;
   double lng;
+
+
+  Socket socket;
+
+  final Location location = Location();
+
+  bool _serviceEnabled;
+  PermissionStatus _permissionGranted;
+  LocationData _locationData;
+
 
   bool isLocationOk = true;
 
@@ -55,42 +70,43 @@ class _HomeState extends State<Home> {
     // MARK: add polyline
     //  var l= _determinePosition();
 
+
     getl();
-    setState(() {
-      //_carts = Cart.getData();
-    });
-
-
-    //getcartDetail();
-    _configureMarkers();
   }
 
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
+  Future<void> connectScoket() async {
+    try {
+      // Configure socket transports must be sepecified
+      socket = await io('http://13.232.172.117:3000', <String, dynamic>{
+        //  socket = await   io('https://socket.io/demos/chat/', <String, dynamic>{
+        'transports': ['websocket'],
+        'autoConnect': false,
+      });
+      // Connect to websocket
+      socket.connect().onConnect((data) {
+        print("data----------------${data}");
+
+        // seneUpdateLocation(socket);
+
+
+            socket.on("cart-locations", ((ddd) {
+
+              print("data----------------${ddd}");
+        }));
+      });
+      // socket.emit("/", "hvv");
+
+      socket.onConnectError((data) {
+        print("ee----------------${data}");
+      });
+      // Handle socket events
+
+    } catch (e) {
+      print("----------------${e.toString()}");
     }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permantly denied, we cannot request permissions.');
-    }
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        return Future.error(
-            'Location permissions are denied (actual value: $permission).');
-      }
-    }
-
-    return await Geolocator.getCurrentPosition();
   }
+
 
   void addMarker() {
     if (customIcon != null &&
@@ -103,7 +119,7 @@ class _HomeState extends State<Home> {
           _markers.add(Marker(
             markerId: MarkerId('markerID$i'),
             onTap: () {
-              getcartDetail(cart,i);
+              getcartDetail(cart, i);
               debugPrint("---------------------------clickddd${cart.id}");
 
               //getcartDetail(cart);
@@ -112,7 +128,6 @@ class _HomeState extends State<Home> {
                 // cart.isShow = !cart.isShow;
                 _currentIndex = i;
                 _onMarkerTapped(i);
-
 
                 // addMarker();
               });
@@ -127,22 +142,22 @@ class _HomeState extends State<Home> {
 
   void _configureMarkers() {
     BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(size: Size(40, 40)), 'assets/cart.png')
+            ImageConfiguration(size: Size(40, 40)), 'assets/cart.png')
         .then((onValue) {
       customIcon = onValue;
     });
     BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(size: Size(22, 22)), 'assets/start_point.png')
+            ImageConfiguration(size: Size(22, 22)), 'assets/start_point.png')
         .then((onValue) {
       startPointIcon = onValue;
     });
     BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(size: Size(22, 22)), 'assets/end_point.png')
+            ImageConfiguration(size: Size(22, 22)), 'assets/end_point.png')
         .then((onValue) {
       endPointIcon = onValue;
     });
     BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(size: Size(22, 22)), 'assets/stop.png')
+            ImageConfiguration(size: Size(22, 22)), 'assets/stop.png')
         .then((onValue) {
       stopIcon = onValue;
       addMarker();
@@ -152,15 +167,15 @@ class _HomeState extends State<Home> {
   void _createPolylineAndSetMarker(List<CartRoutes> routeList) {
     //remove pervious marker
     if (_markers.length > routeList.length) {
-        _markers.removeRange(_markers.length-1, _markers.length);
+      _markers.removeRange(_markers.length - 1, _markers.length);
     }
     // clear the polyline lat and long
     if (_latLongPoly.length > 0) {
       _latLongPoly = [];
     }
 
-     for (var j = 0; j < routeList.length; j++) {
-      int _lastIndex =routeList.length - 1;
+    for (var j = 0; j < routeList.length; j++) {
+      int _lastIndex = routeList.length - 1;
 
       LatLng k = LatLng(routeList[j].lat, routeList[j].lng);
       _latLongPoly.add(k);
@@ -218,13 +233,13 @@ class _HomeState extends State<Home> {
         });
         if (selectedIndex != null) {
           final Marker resetOld =
-          _markers[selectedIndex].copyWith(iconParam: customIcon);
+              _markers[selectedIndex].copyWith(iconParam: customIcon);
           _markers[selectedIndex] = resetOld;
         }
         selectedIndex = index;
 
         BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size(22, 22)),
-            'assets/cart-selected.png')
+                'assets/cart-selected.png')
             .then((onValue) {
           final Marker newMarker = tappedMarker.copyWith(
             iconParam: onValue,
@@ -243,70 +258,64 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery
-        .of(context)
-        .size
-        .width;
-    double height = MediaQuery
-        .of(context)
-        .size
-        .height;
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
     return Scaffold(
-        body: isLocationOk == true ? Stack(
-            alignment: Alignment.center, children: [
-          GoogleMap(
-              mapType: MapType.normal,
-              initialCameraPosition: _kGooglePlex,
-              myLocationButtonEnabled: false,
-              polylines: _polyline,
-              markers: Set<Marker>.from(_markers),
-              onMapCreated: _onMapCreated),
-          Positioned(
-              top: 64,
-              left: 20,
-              child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          spreadRadius: 3,
-                          blurRadius: 10,
-                          offset: Offset(0, 0), // changes position of shadow
-                        ),
-                      ],
-                      borderRadius: BorderRadius.all(Radius.circular(25))),
-                  height: 50,
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width - 40,
-                  child: TextField(
-                    maxLines: 1,
-                    cursorColor: Colors.black,
-                    decoration: InputDecoration(
-                      hintMaxLines: 1,
-                      hintStyle: TextStyle(fontSize: 16),
-                      hintText: "Search vegetables",
-                      suffixIcon: Icon(Icons.search, color: Colors.black),
-                      border: InputBorder.none,
-                      contentPadding:
-                      EdgeInsets.only(top: 14, bottom: 12, left: 30, right: 12),
-                    ),
-                  ))),
-          _bottomSettingsWidget(width, height),
-          if (_currentIndex != null)
-            Container(
-                child: cartList[_currentIndex].isShow
-                    ? Positioned(
-                    bottom: 0,
-                    child: CartDetailWindow(
-                        cart: cartList[_currentIndex],
-                        onSwipeDown: () {
-                          _onCloseCartDetailWindow();
-                        }))
-                    : null),
-        ]) : Container(child: Text("No Data")));
+        body: isLocationOk == true
+            ? Stack(alignment: Alignment.center, children: [
+                GoogleMap(
+                  initialCameraPosition: _kGooglePlex,
+                    mapType: MapType.normal,
+                    myLocationButtonEnabled: false,
+                    polylines: _polyline,
+                    markers: Set<Marker>.from(_markers),
+                    onMapCreated: _onMapCreated),
+                Positioned(
+                    top: 64,
+                    left: 20,
+                    child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                spreadRadius: 3,
+                                blurRadius: 10,
+                                offset:
+                                    Offset(0, 0), // changes position of shadow
+                              ),
+                            ],
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(25))),
+                        height: 50,
+                        width: MediaQuery.of(context).size.width - 40,
+                        child: TextField(
+                          maxLines: 1,
+                          cursorColor: Colors.black,
+                          decoration: InputDecoration(
+                            hintMaxLines: 1,
+                            hintStyle: TextStyle(fontSize: 16),
+                            hintText: "Search vegetables",
+                            suffixIcon: Icon(Icons.search, color: Colors.black),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.only(
+                                top: 14, bottom: 12, left: 30, right: 12),
+                          ),
+                        ))),
+                _bottomSettingsWidget(width, height),
+                if (_currentIndex != null)
+                  Container(
+                      child: cartList[_currentIndex].isShow
+                          ? Positioned(
+                              bottom: 0,
+                              child: CartDetailWindow(
+                                  cart: cartList[_currentIndex],
+                                  onSwipeDown: () {
+                                    _onCloseCartDetailWindow();
+                                  }))
+                          : null),
+              ])
+            : Container(child: Text("No Data")));
   }
 
   //MARK: - Bottom Settings Widget
@@ -332,209 +341,195 @@ class _HomeState extends State<Home> {
           ),
           child: Center(
               child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18.0),
-                        ),
-                        elevation: 0,
-                        color: _isRadiusSelected ? Colors.green : Colors.white,
-                        onPressed: () async {
-                          setState(() {
-                            _isRadiusSelected = true;
-                          });
-                          await showDialog(
-                              context: context,
-                              builder: (BuildContext context) =>
-                                  StatefulBuilder(
-                                      builder: (context, state) =>
-                                          Dialog(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius
-                                                  .circular(30.0),
-                                            ),
-                                            elevation: 1.0,
-                                            backgroundColor: Colors.white,
-                                            child: Container(
-                                              height: width * 0.8,
-                                              width: width * 0.8,
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Column(
-                                                    children: [
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .topRight,
-                                                        child: FlatButton(
-                                                            onPressed: () {
-                                                              Navigator.of(
-                                                                  context,
-                                                                  rootNavigator:
-                                                                  true)
-                                                                  .pop();
-                                                            },
-                                                            child: Icon(
-                                                                Icons
-                                                                    .cancel_outlined)),
-                                                      ),
-                                                      Text(
-                                                        "Select Radius",
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight
-                                                                .bold,
-                                                            color: Colors
-                                                                .black),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Column(
-                                                    children: [
-                                                      SliderTheme(
-                                                        data: SliderTheme.of(
-                                                            context)
-                                                            .copyWith(
-                                                            trackHeight: 12,
-                                                            overlayColor:
-                                                            Colors.green,
-                                                            valueIndicatorColor:
-                                                            Colors.green),
-                                                        child: Slider(
-                                                            activeColor: Colors
-                                                                .green,
-                                                            inactiveColor:
-                                                            Colors.grey[200],
-                                                            value: _radiusValue,
-                                                            divisions: 1000,
-                                                            onChanged: (value) {
-                                                              print("$value");
-                                                              state(() {
-                                                                _radiusValue =
-                                                                    value;
-                                                              });
-                                                            },
-                                                            min: 0,
-                                                            max: 1000,
-                                                            label: _radiusValue
-                                                                .round()
-                                                                .toString() +
-                                                                "m"),
-                                                      ),
-                                                      Container(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                            horizontal: 26),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                          children: [
-                                                            Text("0m"),
-                                                            Text("1000m"),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Container(
-                                                    width: width * 0.7,
-                                                    child: RaisedButton(
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.0),
-                                                      ),
-                                                      elevation: 0,
-                                                      color: Colors.green,
-                                                      onPressed: tabbedOnSearch,
-                                                      child: Text("Search",
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .white,
-                                                              fontSize: 13)),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          )));
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.radio_button_off_sharp,
-                              color:
-                              _isRadiusSelected ? Colors.white : Colors.black,
-                            ),
-                            SizedBox(width: 1),
-                            Expanded(
-                                child: Text(
-                                  "Radius",
-                                  style: TextStyle(
-                                      color: _isRadiusSelected
-                                          ? Colors.white
-                                          : Colors.black,
-                                      fontSize: 13),
-                                )),
-                            SizedBox(width: 1),
-                            if (_radiusValue > 0)
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 5),
-                                decoration: BoxDecoration(
-                                    color: Colors.yellow,
-                                    borderRadius:
-                                    BorderRadius.all(Radius.circular(30))),
-                                child: Text(
-                                  _radiusValue.round().toString() + "m",
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              )
-                          ],
-                        ),
-                      ),
+            margin: EdgeInsets.symmetric(horizontal: 30),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
                     ),
-                    Expanded(
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18.0),
+                    elevation: 0,
+                    color: _isRadiusSelected ? Colors.green : Colors.white,
+                    onPressed: () async {
+                      setState(() {
+                        _isRadiusSelected = true;
+                      });
+                      await showDialog(
+                          context: context,
+                          builder: (BuildContext context) => StatefulBuilder(
+                              builder: (context, state) => Dialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                    ),
+                                    elevation: 1.0,
+                                    backgroundColor: Colors.white,
+                                    child: Container(
+                                      height: width * 0.8,
+                                      width: width * 0.8,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Column(
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.topRight,
+                                                child: FlatButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context,
+                                                              rootNavigator:
+                                                                  true)
+                                                          .pop();
+                                                    },
+                                                    child: Icon(
+                                                        Icons.cancel_outlined)),
+                                              ),
+                                              Text(
+                                                "Select Radius",
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black),
+                                              ),
+                                            ],
+                                          ),
+                                          Column(
+                                            children: [
+                                              SliderTheme(
+                                                data: SliderTheme.of(context)
+                                                    .copyWith(
+                                                        trackHeight: 12,
+                                                        overlayColor:
+                                                            Colors.green,
+                                                        valueIndicatorColor:
+                                                            Colors.green),
+                                                child: Slider(
+                                                    activeColor: Colors.green,
+                                                    inactiveColor:
+                                                        Colors.grey[200],
+                                                    value: _radiusValue,
+                                                    divisions: 1000,
+                                                    onChanged: (value) {
+                                                      print("$value");
+                                                      state(() {
+                                                        _radiusValue = value;
+                                                      });
+                                                    },
+                                                    min: 0,
+                                                    max: 1000,
+                                                    label: _radiusValue
+                                                            .round()
+                                                            .toString() +
+                                                        "m"),
+                                              ),
+                                              Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 26),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text("0m"),
+                                                    Text("1000m"),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Container(
+                                            width: width * 0.7,
+                                            child: RaisedButton(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
+                                              ),
+                                              elevation: 0,
+                                              color: Colors.green,
+                                              onPressed: tabbedOnSearch,
+                                              child: Text("Search",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 13)),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )));
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.radio_button_off_sharp,
+                          color:
+                              _isRadiusSelected ? Colors.white : Colors.black,
                         ),
-                        elevation: 0,
-                        color: _isRadiusSelected ? Colors.white : Colors.green,
-                        onPressed: () {
-                          setState(() {
-                            _isRadiusSelected = false;
-                          });
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.settings,
+                        SizedBox(width: 1),
+                        Expanded(
+                            child: Text(
+                          "Radius",
+                          style: TextStyle(
+                              color: _isRadiusSelected
+                                  ? Colors.white
+                                  : Colors.black,
+                              fontSize: 13),
+                        )),
+                        SizedBox(width: 1),
+                        if (_radiusValue > 0)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 5),
+                            decoration: BoxDecoration(
+                                color: Colors.yellow,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(30))),
+                            child: Text(
+                              _radiusValue.round().toString() + "m",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          )
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                    ),
+                    elevation: 0,
+                    color: _isRadiusSelected ? Colors.white : Colors.green,
+                    onPressed: () {
+                      setState(() {
+                        _isRadiusSelected = false;
+                      });
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.settings,
+                            color: _isRadiusSelected
+                                ? Colors.black
+                                : Colors.white),
+                        SizedBox(width: 2),
+                        Text("Settings",
+                            style: TextStyle(
                                 color: _isRadiusSelected
                                     ? Colors.black
-                                    : Colors.white),
-                            SizedBox(width: 2),
-                            Text("Settings",
-                                style: TextStyle(
-                                    color: _isRadiusSelected
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontSize: 13)),
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              )),
+                                    : Colors.white,
+                                fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          )),
         ));
   }
 
@@ -550,7 +545,7 @@ class _HomeState extends State<Home> {
       //reset the marker state
       if (selectedIndex != null) {
         final Marker resetOld =
-        _markers[selectedIndex].copyWith(iconParam: customIcon);
+            _markers[selectedIndex].copyWith(iconParam: customIcon);
         _markers[selectedIndex] = resetOld;
       }
     });
@@ -592,33 +587,45 @@ class _HomeState extends State<Home> {
         setState(() {
           cartList = res.data;
           _configureMarkers();
+          connectScoket();
         });
       }
     });
   }
 
-  Future<CameraPosition> getl() async {
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    debugPrint("---------------------${position.latitude}");
+ void getl() async {
 
-    if (position != null) {
-      setState(() {
-        _kGooglePlex = CameraPosition(
-          target: LatLng(position.latitude, position.longitude),
-          zoom: 16,
-        );
-        isLocationOk = true;
-        lat = position.latitude;
-        lng = position.longitude;
-      });
-      getCartList(_radiusValue);
+    _serviceEnabled = await location.serviceEnabled();
+    print("-------$_serviceEnabled");
+    if (!_serviceEnabled) {
+
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    } else {
+      _permissionGranted = await location.hasPermission();
+      if (_permissionGranted == PermissionStatus.denied) {
+        _permissionGranted = await location.requestPermission();
+        if (_permissionGranted != PermissionStatus.granted) {
+          return;
+        }
+      }
+
+      _locationData = await location.getLocation();
+      if (_locationData != null) {
+        setState(() {
+          lat = _locationData.latitude;
+          lng = _locationData.longitude;
+        });
+        animateCameraPosition(lat, lng);
+
+        _configureMarkers();
+        getCartList(_radiusValue);
+        print("------------${_locationData.latitude}");
+      }
     }
-
-
-    return _kGooglePlex;
   }
-
 
   void getcartDetail(CartData cart, int i) {
     NetworkUtil networkUtil = new NetworkUtil();
@@ -632,20 +639,22 @@ class _HomeState extends State<Home> {
 
       if (res.success == true) {
         setState(() {
-          cartDetailData= res.data;
-          routeList =cartDetailData.cartRoutes;
-          cartList[i].cartDetailData=res.data;
+          cartDetailData = res.data;
+          routeList = cartDetailData.cartRoutes;
+          cartList[i].cartDetailData = res.data;
           _createPolylineAndSetMarker(routeList);
-
         });
-
-
-
       }
     });
   }
-
+  void animateCameraPosition(double lat, double lang) {
+    _controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(lat, lang),
+          zoom: 14,
+        ),
+      ),
+    );
+  }
 }
-
-
-

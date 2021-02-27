@@ -142,7 +142,7 @@ class _CartDetailWindowState extends State<CartDetailWindow>{
   _launchURL() async {
     const url = 'tel:';
     if (await canLaunch(url)) {
-      await launch(url);
+      await launch(url,);
     } else {
       throw 'Could not launch $url';
     }

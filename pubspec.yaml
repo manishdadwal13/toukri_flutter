@@ -36,9 +36,10 @@ dependencies:
   firebase_auth: ^0.18.4+1
   http: ^0.12.2
   progress_dialog: ^1.2.4
-  geolocator: ^6.1.14
+  location: ^3.2.4
   url_launcher: ^5.7.10
   share: ^0.6.5+4
+  socket_io_client: ^0.9.12
 #location: ^3.0.0
 
 dev_dependencies:
