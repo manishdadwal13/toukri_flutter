@@ -1,0 +1,120 @@
+{
+  "project_info": {
+    "project_number": "181998520520",
+    "project_id": "toukri-b8a74",
+    "storage_bucket": "toukri-b8a74.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:181998520520:android:59b0cbb97aee9d9195bdfd",
+        "android_client_info": {
+          "package_name": "com.toukri"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "181998520520-87jfsqpja4a8lv9fr8gqk3rea6828kc3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.toukri",
+            "certificate_hash": "73e33cb428a4425f2c0b9247b75ca2e87eec0961"
+          }
+        },
+        {
+          "client_id": "181998520520-o0c6jr7k0c83vv58kdj7e13kaijt68f7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.toukri",
+            "certificate_hash": "7ee3bddbecf2ae5fc1500b2c86a6db1ec862d40f"
+          }
+        },
+        {
+          "client_id": "181998520520-u3lsu018q0264qof8areek377h07nji3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.toukri",
+            "certificate_hash": "4935638fef7d7c1d25ae048330f39c6e9318a7b8"
+          }
+        },
+        {
+          "client_id": "181998520520-uevif38r508a3rf0h74usko98hmq2nnb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.toukri",
+            "certificate_hash": "6fb488af1fc3cbd233e79297ea2f8c9d512a8752"
+          }
+        },
+        {
+          "client_id": "181998520520-f62ap2e465qcb10svmhqebioj99s00v3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB88ZMscgJVyHWQLKBoOLOIy7xexjBHoHU"
+        },
+        {
+          "current_key": "AIzaSyCjb9038F_cqAYCu0WP-7AXJO68XzJDVkc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "181998520520-f62ap2e465qcb10svmhqebioj99s00v3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "181998520520-e2lo048hf8t7kiujpa47dcfjnbmbcr7l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.toukri"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:181998520520:android:b685906a7ec5979495bdfd",
+        "android_client_info": {
+          "package_name": "com.tourki_vendor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "181998520520-f62ap2e465qcb10svmhqebioj99s00v3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB88ZMscgJVyHWQLKBoOLOIy7xexjBHoHU"
+        },
+        {
+          "current_key": "AIzaSyCjb9038F_cqAYCu0WP-7AXJO68XzJDVkc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "181998520520-f62ap2e465qcb10svmhqebioj99s00v3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "181998520520-e2lo048hf8t7kiujpa47dcfjnbmbcr7l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.toukri"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
