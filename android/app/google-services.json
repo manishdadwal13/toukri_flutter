@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "181998520520-87jfsqpja4a8lv9fr8gqk3rea6828kc3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.toukri",
+            "certificate_hash": "73e33cb428a4425f2c0b9247b75ca2e87eec0961"
+          }
+        },
+        {
           "client_id": "181998520520-o0c6jr7k0c83vv58kdj7e13kaijt68f7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -45,6 +53,9 @@
       "api_key": [
         {
           "current_key": "AIzaSyB88ZMscgJVyHWQLKBoOLOIy7xexjBHoHU"
+        },
+        {
+          "current_key": "AIzaSyCjb9038F_cqAYCu0WP-7AXJO68XzJDVkc"
         }
       ],
       "services": {
@@ -81,6 +92,9 @@
       "api_key": [
         {
           "current_key": "AIzaSyB88ZMscgJVyHWQLKBoOLOIy7xexjBHoHU"
+        },
+        {
+          "current_key": "AIzaSyCjb9038F_cqAYCu0WP-7AXJO68XzJDVkc"
         }
       ],
       "services": {

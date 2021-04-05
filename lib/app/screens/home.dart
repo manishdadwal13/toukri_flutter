@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-
+import 'dart:convert';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:toukri/app/apic/base_util.dart';
 import 'package:toukri/app/apic/network_utl.dart';
 import 'package:toukri/app/model/cart_detail_response.dart';
+import 'package:toukri/app/model/cart_position.dart';
 import 'package:toukri/app/model/cartdata.dart';
 import 'package:toukri/app/model/cartresponse.dart';
 import 'package:socket_io_client/socket_io_client.dart';
@@ -22,7 +23,8 @@ class _HomeState extends State<Home> {
   // List<Cart> _carts = <Cart>[];
   List<CartData> cartList = List();
   List<Marker> _markers = <Marker>[];
-  double _radiusValue = 1000.0;
+
+  double _radiusValue = 10000.0;
   int _currentIndex;
   bool _isRadiusSelected = true;
   List<LatLng> _latLongPoly = [];
@@ -38,8 +40,8 @@ class _HomeState extends State<Home> {
 
   //List<CartDetailData> cartDetailData = List();
   List<CartRoutes> routeList = List();
-
-  static CameraPosition _kGooglePlex=CameraPosition(
+  List<String> routeMarkerID = <String>[];
+  static CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(20.5937, 78.9629),
     zoom: 16,
   );
@@ -51,7 +53,6 @@ class _HomeState extends State<Home> {
   double lat;
   double lng;
 
-
   Socket socket;
 
   final Location location = Location();
@@ -59,7 +60,6 @@ class _HomeState extends State<Home> {
   bool _serviceEnabled;
   PermissionStatus _permissionGranted;
   LocationData _locationData;
-
 
   bool isLocationOk = true;
 
@@ -70,10 +70,8 @@ class _HomeState extends State<Home> {
     // MARK: add polyline
     //  var l= _determinePosition();
 
-
     getl();
   }
-
 
   Future<void> connectScoket() async {
     try {
@@ -85,14 +83,16 @@ class _HomeState extends State<Home> {
       });
       // Connect to websocket
       socket.connect().onConnect((data) {
-        print("data----------------${data}");
+        print("data--------ddd--------${data}");
 
         // seneUpdateLocation(socket);
 
-
-            socket.on("cart-locations", ((ddd) {
-
-              print("data----------------${ddd}");
+        socket.on("cart-locations", ((response) {
+          final body = json.decode(response);
+          var res = CartPosition.fromJson(body);
+          if (res != null) {
+            moveToNewPosition(res);
+          }
         }));
       });
       // socket.emit("/", "hvv");
@@ -107,6 +107,19 @@ class _HomeState extends State<Home> {
     }
   }
 
+  void moveToNewPosition(CartPosition position) {
+    _markers.asMap().forEach((index, marker) {
+      if (marker.markerId == MarkerId('cardId${position.id}')) {
+        Marker updatedMarker = marker.copyWith(
+          positionParam: LatLng(position.lat, position.lng),
+        );
+
+        setState(() {
+          _markers[index] = updatedMarker;
+        });
+      }
+    });
+  }
 
   void addMarker() {
     if (customIcon != null &&
@@ -117,7 +130,7 @@ class _HomeState extends State<Home> {
         for (var i = 0; i < cartList.length; i++) {
           CartData cart = cartList[i];
           _markers.add(Marker(
-            markerId: MarkerId('markerID$i'),
+            markerId: MarkerId('cardId${cart.id}'),
             onTap: () {
               getcartDetail(cart, i);
               debugPrint("---------------------------clickddd${cart.id}");
@@ -182,6 +195,7 @@ class _HomeState extends State<Home> {
 
       if (j == 0) {
         // set start route marker
+        routeMarkerID.add('markerID-start');
         _markers.add(Marker(
           markerId: MarkerId('markerID-start'),
           icon: startPointIcon,
@@ -189,6 +203,7 @@ class _HomeState extends State<Home> {
         ));
       } else if (j == _lastIndex) {
         // set end route marker
+        routeMarkerID.add('markerID-end');
         _markers.add(Marker(
           markerId: MarkerId('markerID-end'),
           icon: endPointIcon,
@@ -196,6 +211,7 @@ class _HomeState extends State<Home> {
         ));
       } else {
         // set route stop marker
+        routeMarkerID.add('markerID-stop$j');
         _markers.add(Marker(
           markerId: MarkerId('markerID-stop$j'),
           icon: stopIcon,
@@ -221,7 +237,7 @@ class _HomeState extends State<Home> {
 
 // make marker highlighed when tabbed
   void _onMarkerTapped(int index) {
-    final Marker tappedMarker = _markers[index];
+    final tappedMarker = _markers[index];
     if (tappedMarker != null) {
       setState(() {
         cartList.forEach((cart) {
@@ -264,9 +280,9 @@ class _HomeState extends State<Home> {
         body: isLocationOk == true
             ? Stack(alignment: Alignment.center, children: [
                 GoogleMap(
-                  initialCameraPosition: _kGooglePlex,
+                    initialCameraPosition: _kGooglePlex,
                     mapType: MapType.normal,
-                    myLocationButtonEnabled: false,
+                    myLocationEnabled: true,
                     polylines: _polyline,
                     markers: Set<Marker>.from(_markers),
                     onMapCreated: _onMapCreated),
@@ -411,7 +427,7 @@ class _HomeState extends State<Home> {
                                                     inactiveColor:
                                                         Colors.grey[200],
                                                     value: _radiusValue,
-                                                    divisions: 1000,
+                                                    divisions: 10000,
                                                     onChanged: (value) {
                                                       print("$value");
                                                       state(() {
@@ -419,11 +435,11 @@ class _HomeState extends State<Home> {
                                                       });
                                                     },
                                                     min: 0,
-                                                    max: 1000,
-                                                    label: _radiusValue
+                                                    max: 10000,
+                                                    label: (_radiusValue / 1000)
                                                             .round()
                                                             .toString() +
-                                                        "m"),
+                                                        "KM"),
                                               ),
                                               Container(
                                                 padding: EdgeInsets.symmetric(
@@ -433,8 +449,8 @@ class _HomeState extends State<Home> {
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text("0m"),
-                                                    Text("1000m"),
+                                                    Text("0KM"),
+                                                    Text("10KM"),
                                                   ],
                                                 ),
                                               ),
@@ -489,7 +505,7 @@ class _HomeState extends State<Home> {
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(30))),
                             child: Text(
-                              _radiusValue.round().toString() + "m",
+                              (_radiusValue / 1000).round().toString() + "KM",
                               style: TextStyle(fontSize: 12),
                             ),
                           )
@@ -538,6 +554,12 @@ class _HomeState extends State<Home> {
     setState(() {
       //remove pervious route markers
       // _markers.removeRange(3, _markers.length);
+      //  print("markers$_markers");
+      for (var i = 0; i < routeMarkerID.length; i++) {
+        _markers.removeWhere((item) => item.markerId.value == routeMarkerID[i]);
+      }
+      routeMarkerID.clear();
+
       // clear the polyline from pervious route
       _polyline.clear();
       //hide the detail window
@@ -593,12 +615,10 @@ class _HomeState extends State<Home> {
     });
   }
 
- void getl() async {
-
+  void getl() async {
     _serviceEnabled = await location.serviceEnabled();
     print("-------$_serviceEnabled");
     if (!_serviceEnabled) {
-
       _serviceEnabled = await location.requestService();
       if (!_serviceEnabled) {
         return;
@@ -647,6 +667,7 @@ class _HomeState extends State<Home> {
       }
     });
   }
+
   void animateCameraPosition(double lat, double lang) {
     _controller.animateCamera(
       CameraUpdate.newCameraPosition(
